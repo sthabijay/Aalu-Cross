@@ -87,6 +87,13 @@ function Online() {
         nickName: sessionStorage.getItem("nickName"),
         roomCode: sessionStorage.getItem("roomCode"),
       });
+
+    window.addEventListener("beforeunload", () => {
+      socket.emit("LEAVE_ROOM", {
+        roomCode: sessionStorage.getItem("roomCode"),
+        nickName: sessionStorage.getItem("nickName"),
+      });
+    });
   }, []);
 
   useEffect(() => {

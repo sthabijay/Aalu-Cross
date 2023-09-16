@@ -71,7 +71,7 @@ function Home() {
               Play Aalu Cross
             </Button>
             <Button onClick={() => handleRequests("kalu")}>
-              Play Kalu Brush
+              Play Talu Brush
             </Button>
           </div>
 
