@@ -30,7 +30,6 @@ function Footer({
   setCurrentPlayer,
   setWinner,
   counter,
-  gameMode,
 }: props) {
   const [timeX, setTimeX] = useState(time);
   const [timeO, setTimeO] = useState(time);

@@ -33,7 +33,6 @@ function Footer({
   currentPlayer,
   setWinner,
   counter,
-  setCounter,
   you,
   opponent,
   startGame,

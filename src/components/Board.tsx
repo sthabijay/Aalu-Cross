@@ -34,7 +34,6 @@ function Board({
   gameStatus,
   you,
   firstPlayer,
-  setCounter,
 }: props) {
   useEffect(() => {
     let winner;
