@@ -19,7 +19,7 @@ type props = {
   gameMode: string | undefined;
 };
 
-const time = 10000;
+const time = 30000;
 const minus = 100;
 
 function Footer({
@@ -101,34 +101,38 @@ function Footer({
               <div className="w-full flex flex-col">
                 <div className="w-full flex justify-evenly items-center">
                   <big className="w-full">X</big>
-                  <small className="w-full">{timeX / 1000}s</small>
+                  <small className="w-full">
+                    {timeX > 10000 ? Math.floor(timeX / 1000) : timeX / 1000}s
+                  </small>
                 </div>
                 <div
                   className={`h-1 w-full origin-left rounded transition-colors duration-1000 ${
-                    timeX < 2000
+                    timeX < 0.2 * time
                       ? "bg-red-500"
-                      : timeX < 5000
+                      : timeX < 0.4 * time
                       ? "bg-yellow-500"
                       : "bg-blue-500"
                   }`}
-                  style={{ transform: `scaleX(${timeX / 100}%)` }}
+                  style={{ transform: `scaleX(${timeX / (time / 100)}%)` }}
                 ></div>
               </div>
 
               <div className="w-full flex flex-col">
                 <div className="w-full flex justify-evenly items-center">
-                  <small className="w-full">{timeO / 1000}s</small>
+                  <small className="w-full">
+                    {timeO > 10000 ? Math.floor(timeO / 1000) : timeO / 1000}s
+                  </small>
                   <big className="w-full">O</big>
                 </div>
                 <div
                   className={`h-1 w-full -bottom-2 origin-right rounded transition-colors duration-1000 ${
-                    timeO < 2000
+                    timeO < 0.2 * time
                       ? "bg-red-500"
-                      : timeO < 5000
+                      : timeO < 0.4 * time
                       ? "bg-yellow-500"
                       : "bg-blue-500"
                   }`}
-                  style={{ transform: `scaleX(${timeO / 100}%)` }}
+                  style={{ transform: `scaleX(${timeO / (time / 100)}%)` }}
                 ></div>
               </div>
             </div>

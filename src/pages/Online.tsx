@@ -5,8 +5,8 @@ import Board from "../components/Board";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-// const ENDPOINT = "http://localhost:3000/";
-const ENDPOINT = "https://aalu-cross-server.onrender.com/";
+const ENDPOINT = "http://localhost:3000/";
+// const ENDPOINT = "https://aalu-cross-server.onrender.com/";
 
 import { io } from "socket.io-client";
 const socket = io(ENDPOINT);
@@ -51,6 +51,21 @@ function Online() {
     socket.emit("START_GAME", { roomCode: sessionStorage.getItem("roomCode") });
   };
 
+  const sendChanges = (newTiles: Player[], winner: Player) => {
+    socket.emit("SEND_CHANGES", {
+      roomCode: sessionStorage.getItem("roomCode"),
+      tiles: newTiles,
+      currentPlayer,
+      winner,
+    });
+  };
+
+  const resetBoard = () => {
+    socket.emit("RESET_BOARD", {
+      roomCode: sessionStorage.getItem("roomCode"),
+    });
+  };
+
   const leaveRoom = () => {
     socket.emit("LEAVE_ROOM", {
       roomCode: sessionStorage.getItem("roomCode"),
@@ -62,20 +77,27 @@ function Online() {
     navigate("/");
   };
 
+  const pingServer = () => {
+    fetch(ENDPOINT)
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err);
+        navigate("/");
+      });
+  };
+
   useEffect(() => {
     !sessionStorage.getItem("nickName") ? navigate("/") : null;
     params.gameMode !== "aalu" && params.gameMode !== "kalu"
       ? navigate("/error")
       : null;
 
-    fetch(ENDPOINT)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-        navigate("/");
-      });
+    pingServer();
 
     if (!sessionStorage.getItem("roomCode"))
       socket.emit("CREATE_ROOM", {
@@ -87,62 +109,15 @@ function Online() {
         nickName: sessionStorage.getItem("nickName"),
         roomCode: sessionStorage.getItem("roomCode"),
       });
-
-    window.addEventListener("beforeunload", () => {
-      socket.emit("LEAVE_ROOM", {
-        roomCode: sessionStorage.getItem("roomCode"),
-        nickName: sessionStorage.getItem("nickName"),
-      });
-    });
   }, []);
-
-  useEffect(() => {
-    if (winner) {
-      socket.emit("END_GAME", {
-        roomCode: sessionStorage.getItem("roomCode"),
-        winner,
-      });
-    }
-  }, [winner]);
 
   useEffect(() => {
     if (gameStatus === "playing") {
       setFirstPlayer(currentPlayer);
     }
-
-    if (gameStatus === "ended") {
-      socket.emit("GET_POINTS", {
-        winner,
-        roomCode: sessionStorage.getItem("roomCode"),
-      });
-
-      // winner === "draw"
-      //   ? setCounter((prev: Counter) => {
-      //       console.log("draw");
-      //       return { ...prev, draws: prev.draws + 1 };
-      //     })
-      //   : null;
-      // winner === "X"
-      //   ? setCounter((prev: Counter) => {
-      //       console.log("x");
-      //       return { ...prev, p1: prev.p1 + 1 };
-      //     })
-      //   : null;
-      // winner === "O"
-      //   ? setCounter((prev: Counter) => {
-      //       console.log("o");
-      //       return { ...prev, p2: prev.p2 + 1 };
-      //     })
-      //   : null;
-    }
   }, [gameStatus]);
 
   useEffect(() => {
-    socket.on("ERROR", ({ message }) => {
-      navigate("/");
-      console.log(message);
-    });
-
     socket.on("RECEIVE_ROOM", ({ room }) => {
       sessionStorage.setItem("roomCode", room.roomCode);
 
@@ -159,10 +134,8 @@ function Online() {
 
     socket.on(
       "RECEIVE_CHANGES",
-      ({ currPlayer, gameStatus, tiles, winner, room }) => {
-        console.log(
-          `RECEIVE_CHANGES" \n currPlayer ${currPlayer} \n gameStatus ${gameStatus} \n winner ${winner} \n ${you.plays}`
-        );
+      ({ currPlayer, gameStatus, tiles, winner, room, points }) => {
+        console.log("CHANGES_RECEIVED");
 
         setGameStatus(gameStatus);
 
@@ -175,20 +148,22 @@ function Online() {
 
         if (gameStatus === "playing") {
           setCurrentPlayer(currPlayer);
-          setTiles(tiles);
           setWinner(winner);
+          setTiles(tiles);
           return;
         }
 
         if (gameStatus === "ended") {
-          console.log("RECEIVE_CHANGES ended");
           setWinner(winner);
+          setTiles(tiles);
+          setCounter(points);
         }
       }
     );
 
-    socket.on("RECEIVE_POINTS", ({ points }) => {
-      setCounter(points);
+    socket.on("ERROR", ({ message }) => {
+      navigate("/");
+      console.log(message);
     });
   }, [socket]);
 
@@ -224,6 +199,7 @@ function Online() {
           firstPlayer={firstPlayer}
           counter={counter}
           setCounter={setCounter}
+          sendChanges={sendChanges}
         />
         <Footer
           gameStatus={gameStatus}
@@ -237,6 +213,9 @@ function Online() {
           opponent={opponent}
           startGame={startGame}
           leaveRoom={leaveRoom}
+          resetBoard={resetBoard}
+          tiles={tiles}
+          sendChanges={sendChanges}
         />
       </div>
     </>

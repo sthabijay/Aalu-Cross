@@ -4,10 +4,6 @@ import { Counter, GameStatus, Player, WholePlayer } from "../pages/Online";
 import Button from "./Button";
 import TextBox from "./TextBox";
 
-import { io } from "socket.io-client";
-const socket = io("https://aalu-cross-server.onrender.com/");
-// const socket = io("http://localhost:3000/");
-
 import leave from "../assets/leave.svg";
 import replay from "../assets/refresh.svg";
 
@@ -23,6 +19,9 @@ type props = {
   startGame: Function;
   leaveRoom: Function;
   setCounter: Function;
+  resetBoard: Function;
+  tiles: Player[];
+  sendChanges: Function;
 };
 
 const time = 30000;
@@ -31,12 +30,14 @@ const minus = 100;
 function Footer({
   gameStatus,
   currentPlayer,
-  setWinner,
   counter,
   you,
   opponent,
   startGame,
   leaveRoom,
+  resetBoard,
+  tiles,
+  sendChanges,
 }: props) {
   const [timeX, setTimeX] = useState(time);
   const [timeO, setTimeO] = useState(time);
@@ -61,20 +62,10 @@ function Footer({
     }
 
     if (timeX <= 0) {
-      setWinner("O");
-      // setCounter((prev: Counter) => {
-      //   console.log("o");
-      //   return { ...prev, p2: prev.p2 + 1 };
-      // });
       clearInterval(timerX);
     }
 
     if (timeO <= 0) {
-      setWinner("X");
-      // setCounter((prev: Counter) => {
-      //   console.log("x");
-      //   return { ...prev, p1: prev.p1 + 1 };
-      // });
       clearInterval(timerO);
     }
 
@@ -89,6 +80,18 @@ function Footer({
       clearInterval(timerO);
     };
   }, [currentPlayer, timeX, timeO, gameStatus]);
+
+  useEffect(() => {
+    if (timeX <= 0) {
+      sendChanges(tiles, "O");
+    }
+  }, [timeX]);
+
+  useEffect(() => {
+    if (timeO <= 0) {
+      sendChanges(tiles, "X");
+    }
+  }, [timeO]);
 
   return (
     <>
@@ -194,11 +197,7 @@ function Footer({
             />
           </button>
           <button
-            onClick={() =>
-              socket.emit("RESET_BOARD", {
-                roomCode: sessionStorage.getItem("roomCode"),
-              })
-            }
+            onClick={() => resetBoard()}
             disabled={you.isHost ? false : true}
             className={`bg-gradient-to-r from-green-500 to-blue-500 h-full w-full rounded-md p-1 flex justify-center items-center hover:scale-105 hover:hue-rotate-30 active:scale-95 transition-all disabled:opacity-25 disabled:scale-100 disabled:hue-rotate-0 ${
               gameStatus === "waiting" || gameStatus === "ready" ? "hidden" : ""
