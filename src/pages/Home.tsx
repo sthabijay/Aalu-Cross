@@ -33,6 +33,7 @@ function Home() {
       })
       .then((data) => {
         setIsOnline(true);
+        console.log(data);
         setGameState("online");
         setRoomCount(data.rooms);
       })
@@ -49,7 +50,12 @@ function Home() {
 
     pingServer();
 
+    let counter = 0;
+
     const polling = setInterval(() => {
+      counter++;
+      if (counter > 6) clearInterval(polling);
+
       pingServer();
     }, 20000);
 
