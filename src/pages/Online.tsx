@@ -5,8 +5,8 @@ import Board from "../components/Board";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-// const ENDPOINT = "http://localhost:3000/";
-const ENDPOINT = "https://aalu-cross-server.onrender.com/";
+const ENDPOINT = "http://localhost:3000/";
+// const ENDPOINT = "https://aalu-cross-server.onrender.com/";
 
 import { io } from "socket.io-client";
 const socket = io(ENDPOINT);

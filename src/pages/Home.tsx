@@ -3,15 +3,15 @@ import { useNavigate } from "react-router-dom";
 import DialogBox from "../components/DialogBox";
 import Button from "../components/Button";
 
-// const ENDPOINT = "http://localhost:3000/";
-const ENDPOINT = "https://aalu-cross-server.onrender.com/";
+const ENDPOINT = "http://localhost:3000/";
+// const ENDPOINT = "https://aalu-cross-server.onrender.com/";
 
 function Home() {
   const navigate = useNavigate();
   const [gameState, setGameState] = useState<"local" | "online">("local");
   const [dialogBoxVisible, setDialogBoxVisible] = useState(false);
   const [gameMode, setGameMode] = useState("");
-  const [isOnline, setIsOnline] = useState(false);
+  const [isOnline, setIsOnline] = useState<boolean>(false);
   const [roomCount, setRoomCount] = useState<number>(0);
 
   const handleRequests = (gameMode: string) => {
@@ -32,15 +32,13 @@ function Home() {
         return res.json();
       })
       .then((data) => {
-        setIsOnline(true);
         console.log(data);
-        setGameState("online");
+        setIsOnline(true);
         setRoomCount(data.rooms);
       })
       .catch((err) => {
-        setIsOnline(false);
-        setGameState("local");
         console.log(err);
+        setIsOnline(false);
       });
   };
 
@@ -63,6 +61,10 @@ function Home() {
       clearInterval(polling);
     };
   }, []);
+
+  useEffect(() => {
+    isOnline ? setGameState("online") : setGameState("local");
+  }, [isOnline]);
 
   return (
     <>
