@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import DialogBox from "../components/DialogBox";
 import Button from "../components/Button";
 
-const ENDPOINT = "http://localhost:3000/";
-// const ENDPOINT = "https://aalu-cross-server.onrender.com/";
+// const ENDPOINT = "http://localhost:3000/";
+const ENDPOINT = "https://aalu-cross-server.onrender.com/";
 
 function Home() {
   const navigate = useNavigate();
